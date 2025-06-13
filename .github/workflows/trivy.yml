@@ -82,6 +82,8 @@ jobs:
           push: false # No la subimos, solo la construimos
           load: true # Carga la imagen en el runner local para que Trivy la vea
           tags: shipping-service:${{ github.sha }}
+          build-args: |
+            PROJECT_VERSION=1.0.0
 
       # 5. Escanea la IMAGEN de Docker con Trivy
       # Este es el escaneo más importante, ya que analiza el artefacto final
