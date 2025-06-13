@@ -36,8 +36,8 @@ jobs:
 
       # Paso 4: Crear el archivo .tar.gz con todo el código fuente
       # Excluimos la carpeta /target para no incluir los archivos compilados en el fuente.
-      - name: Create Source Code Tarball
-        run: tar --exclude-vcs-ignores -czvf source-code-${{ github.ref_name }}.tar.gz .
+      - name: Create Source Code Tarball (Direct Method)
+        run: tar -czvf source-code-${{ github.ref_name }}.tar.gz src pom.xml mvnw mvnw.cmd .mvn system.properties
 
 
       # Paso 5: Crear el Release en GitHub y subir los artefactos
