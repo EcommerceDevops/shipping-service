@@ -1,53 +1,11 @@
-name: Create Release
-
+name: release
 on:
-  workflow_dispatch:
   push:
     tags:
-      - 'v*' # Se activa con cualquier tag que empiece con 'v'
-
-permissions:
-  contents: write # Necesario para crear el release en GitHub
+      - "v*"
+  workflow_dispatch:
 
 jobs:
-  build-and-release:
-    runs-on: ubuntu-latest
-    steps:
-      # Paso 1: Descargar el código del repositorio
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Necesario para generar el changelog completo
-
-      # Paso 2: Configurar el entorno de Java (JDK)
-      # Usamos Java 17, que es estándar para aplicaciones Spring Boot modernas.
-      # - name: Set up JDK 17
-        #uses: actions/setup-java@v4
-        #with:
-          #java-version: '17'
-          #distribution: 'temurin'
-
-      # Paso 3: Compilar el proyecto con Maven Wrapper
-      # Esto ejecuta "./mvnw package" para crear el archivo .jar en la carpeta /target
-      #- name: Build with Maven
-        #run: |
-          #chmod +x mvnw
-          #./mvnw package
-
-      # Paso 4: Crear el archivo .tar.gz con todo el código fuente
-      # Excluimos la carpeta /target para no incluir los archivos compilados en el fuente.
-      - name: Create Source Code Tarball (Direct Method)
-        run: tar -czvf source-code-${{ github.ref_name }}.tar.gz src pom.xml mvnw mvnw.cmd .mvn system.properties
-
-
-      # Paso 5: Crear el Release en GitHub y subir los artefactos
-      - name: Create GitHub Release
-        uses: ncipollo/release-action@v1
-        with:
-          # Lista de archivos a subir: el .jar compilado y el .tar.gz con el código fuente
-          # La expresión "[!original]" evita subir el archivo .jar.original que a veces genera Spring Boot
-          artifacts: |
-            #target/*[!original].jar
-            source-code-${{ github.ref_name }}.tar.gz
-          token: ${{ secrets.GITHUB_TOKEN }}
-          generateReleaseNotes: true # Genera las notas del release automáticamente
+  release:
+    uses: EcommerceDevops/workflows/.github/workflows/release.yml@main
+    secrets: inherit
