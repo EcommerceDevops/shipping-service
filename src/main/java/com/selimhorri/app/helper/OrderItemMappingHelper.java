@@ -7,6 +7,7 @@ import com.selimhorri.app.dto.ProductDto;
 
 public interface OrderItemMappingHelper {
 	
+	
 	public static OrderItemDto map(final OrderItem orderItem) {
 		return OrderItemDto.builder()
 				.productId(orderItem.getProductId())
