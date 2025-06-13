@@ -16,7 +16,6 @@ pipeline {
         
         configFileProvider([configFile(fileId: 'private-maven-settings', variable: 'MAVEN_SETTINGS_FILE')]) {
             echo "El archivo settings.xml temporal está en: ${env.MAVEN_SETTINGS_FILE}"
-            sh "cat ${env.MAVEN_SETTINGS_FILE}"
             sh "./mvnw --settings ${env.MAVEN_SETTINGS_FILE} clean verify"
         }
 
