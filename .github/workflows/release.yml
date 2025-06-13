@@ -1,6 +1,7 @@
 name: Create Release
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - 'v*' # Se activa con cualquier tag que empiece con 'v'
