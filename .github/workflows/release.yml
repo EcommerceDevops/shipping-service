@@ -7,36 +7,46 @@ on:
       - 'v*' # Se activa con cualquier tag que empiece con 'v'
 
 permissions:
-  contents: write # Necesario para crear el release
+  contents: write # Necesario para crear el release en GitHub
 
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
     steps:
-      # 1. Descarga el código del repositorio
+      # Paso 1: Descargar el código del repositorio
       - name: Checkout code
         uses: actions/checkout@v4
-        # Necesario para que la acción del changelog pueda leer el historial de commits
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Necesario para generar el changelog completo
 
-      # 2. Comprime los archivos del proyecto en un .tar.gz
-      #    Asume que los archivos a distribuir están en una carpeta llamada 'dist'.
-      #    Puedes cambiar 'dist' por las carpetas y archivos que necesites.
-      - name: Create tarball
+      # Paso 2: Configurar el entorno de Java (JDK)
+      # Usamos Java 17, que es estándar para aplicaciones Spring Boot modernas.
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # Paso 3: Compilar el proyecto con Maven Wrapper
+      # Esto ejecuta "./mvnw package" para crear el archivo .jar en la carpeta /target
+      - name: Build with Maven
         run: |
-          # El nombre del archivo usará el nombre del tag (ej: project-v1.2.0.tar.gz)
-          tar -czvf project-${{ github.ref_name }}.tar.gz .
+          chmod +x mvnw
+          ./mvnw package
 
-      # 3. Crea el Release en GitHub y sube el archivo comprimido
-      #    Esta acción es muy popular y flexible.
-      #    Automáticamente usa el tag como nombre del release y genera notas.
+      # Paso 4: Crear el archivo .tar.gz con todo el código fuente
+      # Excluimos la carpeta /target para no incluir los archivos compilados en el fuente.
+      - name: Create Source Code Tarball
+        run: tar -czvf source-code-${{ github.ref_name }}.tar.gz --exclude=./target .
+
+      # Paso 5: Crear el Release en GitHub y subir los artefactos
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          # El archivo (o archivos) que quieres subir al release.
-          artifacts: "project-${{ github.ref_name }}.tar.gz"
-          # El token para poder publicar. No necesitas cambiarlo.
+          # Lista de archivos a subir: el .jar compilado y el .tar.gz con el código fuente
+          # La expresión "[!original]" evita subir el archivo .jar.original que a veces genera Spring Boot
+          artifacts: |
+            target/*[!original].jar
+            source-code-${{ github.ref_name }}.tar.gz
           token: ${{ secrets.GITHUB_TOKEN }}
-          # Esta opción genera el changelog automáticamente a partir de los commits.
-          generateReleaseNotes: true
+          generateReleaseNotes: true # Genera las notas del release automáticamente
