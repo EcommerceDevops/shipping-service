@@ -1,5 +1,4 @@
-
-version: '3'
+version: "3"
 services:
   shipping-service-container:
     image: selimhorri/shipping-service-ecommerce-boot:0.1.0
@@ -7,6 +6,3 @@ services:
       - 8600:8600
     environment:
       - SPRING_PROFILES_ACTIVE=dev
-
-
-
