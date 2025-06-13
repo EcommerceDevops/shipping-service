@@ -7,5 +7,7 @@ on:
 
 jobs:
   release:
+    permissions:
+      contents: write
     uses: EcommerceDevops/workflows/.github/workflows/release.yml@main
     secrets: inherit
