@@ -1,0 +1,41 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*' # Se activa con cualquier tag que empiece con 'v'
+
+permissions:
+  contents: write # Necesario para crear el release
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Descarga el código del repositorio
+      - name: Checkout code
+        uses: actions/checkout@v4
+        # Necesario para que la acción del changelog pueda leer el historial de commits
+        with:
+          fetch-depth: 0
+
+      # 2. Comprime los archivos del proyecto en un .tar.gz
+      #    Asume que los archivos a distribuir están en una carpeta llamada 'dist'.
+      #    Puedes cambiar 'dist' por las carpetas y archivos que necesites.
+      - name: Create tarball
+        run: |
+          # El nombre del archivo usará el nombre del tag (ej: project-v1.2.0.tar.gz)
+          tar -czvf project-${{ github.ref_name }}.tar.gz dist
+
+      # 3. Crea el Release en GitHub y sube el archivo comprimido
+      #    Esta acción es muy popular y flexible.
+      #    Automáticamente usa el tag como nombre del release y genera notas.
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          # El archivo (o archivos) que quieres subir al release.
+          artifacts: "project-${{ github.ref_name }}.tar.gz"
+          # El token para poder publicar. No necesitas cambiarlo.
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # Esta opción genera el changelog automáticamente a partir de los commits.
+          generateReleaseNotes: true
